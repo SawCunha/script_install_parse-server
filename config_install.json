@@ -1,0 +1,122 @@
+{
+    "erro_install": "command not found",
+    "reboot":"reboot -h now",
+    "update_system": {
+        "install_git": "yum install git -y",
+        "install_htop": "yum install htop -y",
+        "install_vim": "yum install vim -y",
+        "install_net-tools": "yum install net-tools -y",
+        "install_lbs-core":"yum install redhat-lsb -y",
+        "install_system": "yum install epel-release -y",
+        "update":"yum update -y"
+    },
+    "install_node": {
+        "repositorio": "curl -sL https://rpm.nodesource.com/setup_13.x | sudo bash -",
+        "install": "yum install -y nodejs",
+        "verificando_node": "node --version",
+        "version_node": "v13.9.0",
+        "verificando_npm": "npm --version",
+        "version_npm": "6.13.7"
+    },
+    "install_mongo":{
+        "dir_yum": "/etc/yum.repos.d/mongodb-org-3.4.repo",
+        "mongo_yum": "[mongodb-org-4.2]\nname=MongoDB Repository\nbaseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.2/x86_64/\ngpgcheck=1\nenabled=1\ngpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc\n",
+        "install": "yum install mongodb-org -y",
+        "start": "systemctl start mongod.service",
+        "enable": "systemctl enable mongod.service",
+        "version": "v4.2."
+    },
+    "install_parse-server": {
+        "cd_dir": "/opt",
+        "mkidr": "mkdir parse-server",
+        "dir": "parse-server",
+        "appName": "Name App",
+        "appId":"App Id App",
+        "masterKey":"Master Key App",
+        "config_name": "config.json",
+        "config": {
+            "appName": "$appName$",
+            "appId": "$appId$",
+            "masterKey": "$masterKey$",
+            "cloud": "./cloud/main",
+            "databaseURI": "mongodb://127.0.0.1:27017/parse",
+            "scheduledPush": true,
+            "push": {
+                "android" : {
+                    "apiKey": "$keyPush$"
+                }
+            }
+        },
+        "package_name": "package.json",
+        "package": {
+            "name": "$appName$",
+            "description": "parse-server for $appName$",
+            "scripts": {
+                "start": "parse-server config.json"
+            },
+            "dependencies": {
+                "parse-server": "^3.9.0"
+            }
+        },
+        "mkdir_cloud":"mkdir -p cloud",
+        "cloud_name": "cloud/main.js",
+        "cloud":"// Cloud Code entry point",
+        "mkdir_public":"mkdir -p public",
+        "install": "npm install -s",
+        "install_mongo": "npm install -g mongodb-runner && mongodb-runner start"
+    },
+    "install_parse-dashboard": {
+        "install": "npm install -g parse-dashboard",
+        "create_file_config": {
+            "mkdir": "mkdir /opt/parse-dashboard",
+            "dir":"/opt/parse-dashboard",
+            "name": "parse-dashboard-config.json",
+            "data": {
+                "apps": [{
+                  "serverURL": "http://$ipServer$:1337/parse",
+                  "appId": "$appId$",
+                  "masterKey": "$masterKey$",
+                  "appName": "$appName$",
+                  "iconName": "favicon.ico",
+                  "primaryBackgroundColor": "",
+                  "secondaryBackgroundColor": ""
+                }],
+                  "users": [
+                      {
+                      "user": "admin",
+                      "pass": "admin"
+                      }
+                ],
+                "iconsFolder": "icons"
+              }
+        }
+    },
+    "init_systemd": {
+        "mkdir":"mkdir /opt/parse",
+        "dir": "cd /opt/parse",
+        "parse-server":{
+            "script":"#!/bin/bash \n cd /opt/parse-server \n npm start",
+            "script_name":"/opt/parse/parse-server.sh",
+            "chmod":"chmod 755 /opt/parse/parse-server.sh",
+            "systemd":"[Unit] \n Description=Description for sample script goes here \n After=network.target \n  \n [Service] \n Type=simple \n ExecStart=/opt/parse/parse-server.sh \n TimeoutStartSec=0 \n  \n [Install] \n WantedBy=default.target",
+            "systemd_name":"/etc/systemd/system/parse-server.service",
+            "start":"systemctl start parse-server.service",
+            "enable":"systemctl enable parse-server.service"
+        },
+        "parse-dashboar":{
+            "script":"#!/bin/bash \n parse-dashboard --config /opt/parse-dashboard/parse-dashboard-config.json --allowInsecureHTTP",
+            "script_name":"/opt/parse/parse-dashboard.sh",
+            "chmod":"chmod 755 /opt/parse/parse-dashboard.sh",
+            "systemd":"[Unit] \n Description=Description for sample script goes here \n After=network.target \n  \n [Service] \n Type=simple \n ExecStart=/opt/parse/parse-dashboard.sh \n TimeoutStartSec=0 \n  \n [Install] \n WantedBy=default.target",
+            "systemd_name":"/etc/systemd/system/parse-dashboard.service",
+            "start":"systemctl start parse-dashboard.service",
+            "enable":"systemctl enable parse-dashboard.service"
+        },
+        "reload":"systemctl daemon-reload"
+    },
+    "firewall":{
+        "parse-server": "firewall-cmd --permanent --zone=public --add-port=1337/tcp",
+        "parse-dashboard": "firewall-cmd --permanent --zone=public --add-port=4040/tcp",
+        "reload": "firewall-cmd --reload"
+    }
+}
